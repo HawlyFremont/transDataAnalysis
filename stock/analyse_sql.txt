@@ -1,23 +1,29 @@
-mysql -uroot -pkiddy@TC#628 --default-character-set=utf8 kiddyliu
-mysql -uroot -pkiddy@TC#628 --default-character-set=utf8 kiddyliu -e "update t_trans_history set Type=1 where t Des='买入';";
+mysql -uroot -p1qaz2wsx --default-character-set=utf8 kiddyliu
 mysql -uroot --default-character-set=utf8 kiddyliu < h.sql 
 
-select StockID,StockName,Price,Num,Amount,Type,Des,Date,Time from t_trans_history where Type=1 and Amount>0;
-select StockID,StockName,Price,Num,Amount,Type,Des,Date,Time from t_trans_history where Type=0;
-update t_trans_history set Type=1,Amount=-Amount where Des='buy' and Type=0;
-update t_trans_history set Type=2 where Des='sale' and Type=0;
+update t_trans_history set Type=1 where Des='buy';update t_trans_history set Type=2 where Des='sale';
+update t_trans_history set vAmount=-Amount where Type=1;update t_trans_history set vNum=-Num where Type=2;
+update t_trans_history set vAmount=Amount where Type=2;update t_trans_history set vNum=Num where Type=1;
 
-select round(sum(Amount),2) as sum from t_trans_history where Num>0 and Type>0 and Price >1.0 and StockID=000157;
+
+select StockID,stockName,sum(vNum) as Num from t_trans_history group by StockID having Num<>0 order by stockID;
+
+select round(sum(Amount),2) as sum from t_trans_history where Type>0 and Price >1.0;
+select StockID,StockName,round(sum(vAmount),2) as Sum from t_trans_history where Type>0 and Price >1.0 group by StockID order by Sum desc;
+
 
 select StockID,StockName,Price,Num,Amount,Type,Des,Date,Time from t_trans_history where Type>0 order by StockID asc,Date asc;
 
 select StockID,StockName as name,Price as price,Num as num,Amount as amount,Type as type,Des,Date,Time from t_trans_history where Type=2 and StockID=600518;
 
-select StockID,StockName as name,Price as price,Num as num,Amount as amount,Type as type,Des,Date,Time from t_trans_history where Type>0 and StockID=000157 order by Date asc,Time asc;
+select StockID,StockName as name,Price as price,Num as num,Amount as amount,Type as type,Des,Date,Time from t_20160525 where Type>0 and StockID=002033 order by Date asc,Time asc;
+
+select StockID,StockName as name,Price as price,Num,vNum,Amount,vAmount,Type,Des,Date,Time from t_trans_history where Type>0 and StockID=002033 order by Date asc,Time asc;
+
 
 select * from t_trans_history where StockID=601985 and commissionID=1143;
 
-select StockID,StockName,sum(num) as Sum from t_trans_history where  Type>0 and Price >1.0 group by StockID having sum(Num)<>0;
+select StockID,StockName,sum(vNum) as Sum from t_trans_history where  Type>0 and Price >1.0 group by StockID having Sum<>0;
 
 mysql> select round(sum(Amount),2) as sum from t_trans_history where Num>0 and Type>0 and Price >1.0;
 +-----------+
@@ -26,7 +32,7 @@ mysql> select round(sum(Amount),2) as sum from t_trans_history where Num>0 and T
 | -65985.78 |
 +-----------+
 
-select StockID,StockName,round(sum(Amount),2) as Sum from t_trans_history where Num>0 and Type>0 and Price >1.0 group by StockID order by Sum desc;
+select StockID,StockName,round(sum(Amount),2) as Sum from t_trans_history where Type>0 and Price >1.0 group by StockID order by Sum desc;
 +---------+--------------+-----------+
 | StockID | StockName    | Sum       |
 +---------+--------------+-----------+
@@ -161,7 +167,7 @@ select StockID,StockName,round(sum(Amount),2) as Sum from t_trans_history where 
 +---------+--------------+-----------+
 128 rows in set (0.00 sec)
 
-xiaohui@xiaohui-T440:~/code/stock$ mysql -uroot -pkiddy@TC#628 --default-character-set=latin1 db_stock_history -e "select StockID,StockName,Price as price,Num as num,Amount,Type as type,Des,Date,Time from t_trans_history where Type>0 order by StockID asc,Date asc"
+xiaohui@xiaohui-T440:~/code/stock$ mysql -uroot -p1qaz2wsx --default-character-set=latin1 db_stock_history -e "select StockID,StockName,Price as price,Num as num,Amount,Type as type,Des,Date,Time from t_trans_history where Type>0 order by StockID asc,Date asc"
 Warning: Using a password on the command line interface can be insecure.
 +---------+--------------+--------+------+----------------+------+-------------+--------------+--------------+--------------+
 | StockID | StockName    | price  | num  | Amount | type | Des | Date | Time | commissionID |
